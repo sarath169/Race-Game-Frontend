@@ -32,17 +32,15 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 const theme = createTheme();
 
 function Login() {
-  const { user, setUser, token, setToken } = useContext(UserContext);
+  const { user, setUser, token, setToken, userID, setUserID } = useContext(UserContext);
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const history = useHistory();
 
   const userNameChangeHandler = (event) => {
-    console.log(event.target.value);
     setUserName(event.target.value);
   };
   const passwordChangeHandler = (event) => {
-    console.log(event.target.value);
     setPassword(event.target.value);
   };
   const submitHandler = async (event) => {
@@ -59,6 +57,7 @@ function Login() {
           console.log(response);
           setToken(response.data.token);
           setUser(username);
+          setUserID(response.data.id)
           console.log("entered");
           history.push("/home");
         })
@@ -136,10 +135,10 @@ function Login() {
                   Forgot password?
                 </Link>
               </Grid>
-              <Grid item>
-                <Link href="http://localhost:3000/signup" variant="body2">
+              <Grid item onClick = {() => {
+                history.push("/signup")
+              }}>
                   {"Don't have an account? Sign Up"}
-                </Link>
               </Grid>
             </Grid>
           </Box>

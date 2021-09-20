@@ -21,17 +21,21 @@ import { useHistory } from "react-router";
 import { UserContext } from "./UserContext";
 
 function Game() {
-  const { user, token } = useContext(UserContext);
+  const { user, token, userID } = useContext(UserContext);
+  const history = useHistory();
+  const [words, setWords] = useState([]);
+  const [leaderBoard, setLeaderBoard] = useState([]);
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
-  const [words, setWords] = useState([]);
-  const [open, setOpen] = useState(false);
+  const [wrong, setWrong] = useState(0);
+  const [correct, setCorrect] = useState(0)
+  const [multiplier, setMultiplier] = useState(1);
+  const [pointer, setPointer] = useState(1);
   const [wordTyped, setWordTyped] = useState("Input");
   const [displayWord, setDisplayWord] = useState();
-  const [rows, setRows] = useState([]);
-  const [multiplier, setMultiplier] = useState(1);
   const [modalStyle] = useState(getModalStyle);
-  const history = useHistory()
+  const [streak, setStreak] = useState(multiplier);
+  const [open, setOpen] = useState(false);
 
   const useStyles = makeStyles((theme) => ({
     root: {
@@ -164,6 +168,21 @@ function Game() {
       </CardContent>
     </React.Fragment>
   );
+
+  const dict = () => {
+    return (
+      <>
+        {console.log(words)}
+        <ul>
+          {words.length &&
+            words.map((word) => {
+              <li> {word}</li>;
+            })}
+        </ul>
+      </>
+    );
+  };
+
   const inputWord = (
     <React.Fragment>
       <CardContent>
@@ -194,72 +213,54 @@ function Game() {
     } while (currentDate - date < milliseconds);
   }
 
-  function changeInput() {
-    return <Card variant="outlined">{display}</Card>;
-  }
-
-  function check(pointer) {
-    if (pointer < words.length) {
+  function check() {
+    if (pointer < 25) {
       if (wordTyped === displayWord) {
-        pointer = pointer + 1;
+        setDisplayWord(words[pointer]);
+        setScore(score + multiplier * 1);
+        setMultiplier(multiplier + 1);
+        setPointer(pointer + 1);
+        setCorrect(correct+1)
+      } else {
+        setScore(score - 1);
+        setWrong(wrong+1)
+        setMultiplier(1);
       }
     } else {
-      setOpen(true);
+      endgame();
     }
+  }
 
-    const handleClose = () => {
-      setOpen(false);
-      history.push("/game");
-    };
+  const handleClose = () => {
+    setOpen(false);
+    // history.push("/game");
+  };
 
-    const Save = () =>{
-      const formdata = new FormData();
-      formdata.append("username", user);
-      formdata.append("score", score);
-      formdata.append("level", level);
-      formdata.append("correct", 50);
-      formdata.append("wrong", 0);
-      formdata.append("skipped", 0);
+  function endgame() {
+    setOpen(true);
+  }
 
-      const url = "http://127.0.0.1:8000/api/save/";
+  const Save = () => {
+    const formdata = new FormData();
+    formdata.append("user", userID);
+    formdata.append("score", score);
+    formdata.append("level", level);
+    formdata.append("correct", correct );
+    formdata.append("wrong", wrong);
+    formdata.append("streak", streak);
+
+    const url = "http://127.0.0.1:8000/api/save/";
     axios
       .post(url, formdata)
       .then(function (response) {
         console.log(response);
+        history.push("/home");
         // setUsers(response.data.results);
       })
       .catch(function (error) {
         console.log(error);
       });
-    }
-
-    function endgame() {
-      return (
-        <Modal
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
-        >
-          <>
-            <div style={modalStyle} className={classes.paper}>
-              <ul>
-                <li> Score : {score}</li>
-                <li> Level-Reached : {level}</li>
-              </ul>
-              <Button
-                onClick={() => {
-                  Save();
-                }}
-              >
-                Save
-              </Button>
-            </div>
-          </>
-        </Modal>
-      );
-    }
-  }
+  };
 
   function testWord() {
     var length = 0;
@@ -299,6 +300,8 @@ function Game() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
+    setWordTyped(null);
+    check();
   };
 
   const inputChangeHandler = (event) => {
@@ -311,6 +314,7 @@ function Game() {
       .then(function (response) {
         console.log(response);
         setWords(response.data.words);
+        setDisplayWord(response.data.words[0]);
         // setUsers(response.data.results);
       })
       .catch(function (error) {
@@ -323,15 +327,19 @@ function Game() {
       .get(url)
       .then(function (response) {
         console.log(response);
-        setRows(response.data);
+        setLeaderBoard(response.data);
         // setUsers(response.data.results);
       })
       .catch(function (error) {
         console.log(error);
       });
   }, []);
-  // useEffect(() => {
-  // }, [displayWord]);
+  useEffect(() => {
+    setLevel(Math.ceil((10 * score) / 1275));
+  }, [score]);
+  useEffect(() => {
+    if (multiplier > streak) setStreak(multiplier);
+  }, [multiplier]);
   return (
     <div>
       <div className="">
@@ -362,12 +370,12 @@ function Game() {
                       <TableCell>Username</TableCell>
                       <TableCell align="right">Level</TableCell>
                       <TableCell align="right">Score</TableCell>
-                      <TableCell align="right">Matches</TableCell>
+                      <TableCell align="right"></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {rows.length &&
-                      rows.map((row) => (
+                    {leaderBoard.length &&
+                      leaderBoard.map((row) => (
                         <TableRow
                           key={row.user}
                           sx={{
@@ -375,20 +383,31 @@ function Game() {
                           }}
                         >
                           <TableCell component="th" scope="row">
-                            {row.user}
+                            {row.username}
                           </TableCell>
                           <TableCell align="right">{row.level}</TableCell>
                           <TableCell align="right">{row.score}</TableCell>
-                          <TableCell align="right">{row.correct}</TableCell>
+                          <TableCell align="right">{row.streak}</TableCell>
                         </TableRow>
                       ))}
                   </TableBody>
                 </Table>
               </TableContainer>
             </Grid>
+            {/* <Box>
+          <Grid container spacing={3}>
+            <Grid item xs={6}>
+              <ul>
+                {words.length &&
+                  words.map((word) => (
+                    <li> {word}</li>
+                  ))}
+              </ul>
+            </Grid>
+          </Grid>
+        </Box> */}
           </Grid>
         </Box>
-        <React.Fragment></React.Fragment>
       </div>
       <Box>
         <Grid container spacing={3}>
@@ -424,9 +443,44 @@ function Game() {
           name="input"
           autoComplete="fname"
           autoFocus
+          value={wordTyped}
           onChange={inputChangeHandler}
         />
       </Box>
+      <div>
+        <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+        >
+          <>
+            <div style={modalStyle} className={classes.paper}>
+              <ul>
+                <li> Score : {score}</li>
+                <li> Level-Reached : {level}</li>
+                <li> Streak : {streak}</li>
+                <li> Correct : {correct}</li>
+                <li> Wrong : {wrong}</li>
+              </ul>
+              <Button
+                onClick={() => {
+                  setOpen(false);
+                }}
+              >
+                Don't Save
+              </Button>
+              <Button
+                onClick={() => {
+                  Save();
+                }}
+              >
+                Save
+              </Button>
+            </div>
+          </>
+        </Modal>
+      </div>
     </div>
   );
 }

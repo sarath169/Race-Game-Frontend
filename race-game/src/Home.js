@@ -18,9 +18,9 @@ import { useHistory } from "react-router";
 import { UserContext } from "./UserContext";
 
 function Home() {
-  const { user, token } = useContext(UserContext);
+  const { user, token, userID } = useContext(UserContext);
   const [open, setOpen] = useState(false);
-  const [leaderboard, setLeaderboard] = useState([]);
+  const [leaderBoard, setLeaderBoard] = useState([]);
   const [userStats, setUserStats] = useState([]);
   const history = useHistory();
   const [modalStyle] = useState(getModalStyle);
@@ -64,6 +64,52 @@ function Home() {
       transform: `translate(-${top}%, -${left}%)`,
     };
   }
+
+  const stats = () =>{
+    return(<Box>
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          {userStats.length}
+          <h3>User Stats</h3>
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Username</TableCell>
+                  <TableCell align="right">Score</TableCell>
+                  <TableCell align="right">Level</TableCell>
+                  <TableCell align="right">Correct</TableCell>
+                  <TableCell align="right">Wrong</TableCell>
+                  <TableCell align="right">Streak</TableCell>
+                  
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {userStats.length &&
+                  userStats.map((row) => (
+                    <TableRow
+                      key={row.user}
+                      sx={{
+                        "&:last-child td, &:last-child th": { border: 0 },
+                      }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {user}
+                      </TableCell>
+                      <TableCell align="right">{row.score}</TableCell>
+                      <TableCell align="right">{row.level}</TableCell>
+                      <TableCell align="right">{row.correct}</TableCell>
+                      <TableCell align="right">{row.wrong}</TableCell>
+                      <TableCell align="right">{row.streak}</TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grid>
+      </Grid>
+    </Box>)
+  }
   const handleClose = () => {
     setOpen(false);
     history.push("/game");
@@ -74,7 +120,7 @@ function Home() {
       .get(url)
       .then(function (response) {
         console.log(response.data);
-        setLeaderboard(response.data);
+        setLeaderBoard(response.data);
 
         // setUsers(response.data.results);
       })
@@ -84,10 +130,10 @@ function Home() {
   }, []);
   useEffect(() => {
     const url = "http://127.0.0.1:8000/api/stats/";
-    console.log(user)
+    console.log(userID)
     axios
       .get(url, {
-        params: { user: user },
+        params: { user: userID },
       })
       .then(function (response) {
         console.log(response.data);
@@ -104,6 +150,7 @@ function Home() {
       <Box>
         <Grid container spacing={3}>
           <Grid item xs={12}>
+            <h3>LeaderBoard</h3>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
@@ -111,12 +158,13 @@ function Home() {
                     <TableCell>Username</TableCell>
                     <TableCell align="right">Level</TableCell>
                     <TableCell align="right">Score</TableCell>
-                    <TableCell align="right">Matches</TableCell>
+                    <TableCell align="right">Streak</TableCell>
+                    
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {userStats.length &&
-                    userStats.map((row) => (
+                  {leaderBoard.length &&
+                    leaderBoard.map((row) => (
                       <TableRow
                         key={row.user}
                         sx={{
@@ -124,11 +172,11 @@ function Home() {
                         }}
                       >
                         <TableCell component="th" scope="row">
-                          {user}
+                          {row.username}
                         </TableCell>
                         <TableCell align="right">{row.level}</TableCell>
                         <TableCell align="right">{row.score}</TableCell>
-                        <TableCell align="right">{row.correct}</TableCell>
+                        <TableCell align="right">{row.streak}</TableCell>
                       </TableRow>
                     ))}
                 </TableBody>
@@ -137,6 +185,7 @@ function Home() {
           </Grid>
         </Grid>
       </Box>
+      {userStats.length && stats()}
       <div>
         <Button
           onClick={() => {

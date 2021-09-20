@@ -11,10 +11,11 @@ import NavBar from "./NavBar";
 function App() {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [userID, setUserID] = useState(null);
   const history = useHistory();
   const providerValue = useMemo(
-    () => ({ user, setUser, token, setToken }),
-    [user, setUser, token, setToken]
+    () => ({ user, setUser, token, setToken, userID, setUserID, }),
+    [user, setUser, token, setToken, userID, setUserID]
   );
   return (
     <BrowserRouter>

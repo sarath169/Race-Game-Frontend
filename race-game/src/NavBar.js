@@ -11,10 +11,30 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 
 export default function NavBar() {
+
+  const { user, token, userID } = useContext(UserContext);
   
   const history = useHistory()
   const Home = () => {
     history.push('/home')
+  }
+  const Login = () =>{
+    history.push('/')
+  }
+  const Logout = () =>{
+    const url = "http://127.0.0.1:8000/auth/logout/";
+    const formdata = new FormData();
+    formdata.append("token", token)
+    axios
+      .post(url, formdata)
+      .then(function (response) {
+        console.log(response.data);
+
+        // setUsers(response.data.results);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -31,6 +51,12 @@ export default function NavBar() {
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           <Button color="inherit" onClick = {Home}>Home</Button>
+          { token ? (
+            
+            <Button color="inherit" onClick = {Logout}>Logout</Button>
+            
+           ) : <Button color="inherit" onClick = {Login}>Login</Button>}
+           
           </Typography>
 
           

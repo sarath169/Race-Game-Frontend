@@ -13,7 +13,6 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
-import ReactTable from "react-table";
 import { useHistory } from "react-router";
 import { UserContext } from "./UserContext";
 
@@ -65,51 +64,52 @@ function Home() {
     };
   }
 
-  const stats = () =>{
-    return(<Box>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          {userStats.length}
-          <h3>User Stats</h3>
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Username</TableCell>
-                  <TableCell align="right">Score</TableCell>
-                  <TableCell align="right">Level</TableCell>
-                  <TableCell align="right">Correct</TableCell>
-                  <TableCell align="right">Wrong</TableCell>
-                  <TableCell align="right">Streak</TableCell>
-                  
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {userStats.length &&
-                  userStats.map((row) => (
-                    <TableRow
-                      key={row.user}
-                      sx={{
-                        "&:last-child td, &:last-child th": { border: 0 },
-                      }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {user}
-                      </TableCell>
-                      <TableCell align="right">{row.score}</TableCell>
-                      <TableCell align="right">{row.level}</TableCell>
-                      <TableCell align="right">{row.correct}</TableCell>
-                      <TableCell align="right">{row.wrong}</TableCell>
-                      <TableCell align="right">{row.streak}</TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+  const stats = () => {
+    return (
+      <Box>
+        <Grid container spacing={3}>
+          <Grid item xs={8}>
+            {/* {userStats.length} */}
+            <h3>User Stats</h3>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Username</TableCell>
+                    <TableCell align="right">Score</TableCell>
+                    <TableCell align="right">Level</TableCell>
+                    <TableCell align="right">Correct</TableCell>
+                    <TableCell align="right">Wrong</TableCell>
+                    <TableCell align="right">Streak</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {userStats.length &&
+                    userStats.map((row) => (
+                      <TableRow
+                        key={row.user}
+                        sx={{
+                          "&:last-child td, &:last-child th": { border: 0 },
+                        }}
+                      >
+                        <TableCell component="th" scope="row">
+                          {user}
+                        </TableCell>
+                        <TableCell align="right">{row.score}</TableCell>
+                        <TableCell align="right">{row.level}</TableCell>
+                        <TableCell align="right">{row.correct}</TableCell>
+                        <TableCell align="right">{row.wrong}</TableCell>
+                        <TableCell align="right">{row.streak}</TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
         </Grid>
-      </Grid>
-    </Box>)
-  }
+      </Box>
+    );
+  };
   const handleClose = () => {
     setOpen(false);
     history.push("/game");
@@ -130,7 +130,7 @@ function Home() {
   }, []);
   useEffect(() => {
     const url = "http://127.0.0.1:8000/api/stats/";
-    console.log(userID)
+    console.log(userID);
     axios
       .get(url, {
         params: { user: userID },
@@ -149,7 +149,7 @@ function Home() {
     <div>
       <Box>
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid item xs={8}>
             <h3>LeaderBoard</h3>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -159,7 +159,6 @@ function Home() {
                     <TableCell align="right">Level</TableCell>
                     <TableCell align="right">Score</TableCell>
                     <TableCell align="right">Streak</TableCell>
-                    
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -175,7 +174,7 @@ function Home() {
                           {row.username}
                         </TableCell>
                         <TableCell align="right">{row.level}</TableCell>
-                        <TableCell align="right">{row.score}</TableCell>
+                        <TableCell align="right">{Math.floor(row.score)}</TableCell>
                         <TableCell align="right">{row.streak}</TableCell>
                       </TableRow>
                     ))}
@@ -236,7 +235,7 @@ function Home() {
                   handleClose();
                 }}
               >
-                Close
+                Start
               </Button>
             </div>
           </>

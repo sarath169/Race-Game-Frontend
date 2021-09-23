@@ -15,6 +15,12 @@ import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
 import { useHistory } from "react-router";
 import { UserContext } from "./UserContext";
+import './App.css'
+
+ // Axios Instance
+ const axiosInstance = axios.create({
+  baseURL : 'http://127.0.0.1:8000/api/'
+})
 
 function Home() {
   const { user, token, userID } = useContext(UserContext);
@@ -27,6 +33,9 @@ function Home() {
   const useStyles = makeStyles((theme) => ({
     root: {
       display: "inline-grid",
+    },
+    center: {
+      textAlign: "center",
     },
     media: {
       height: 200,
@@ -66,48 +75,46 @@ function Home() {
 
   const stats = () => {
     return (
-      <Box>
-        <Grid container spacing={3}>
-          <Grid item xs={8}>
-            {/* {userStats.length} */}
-            <h3>User Stats</h3>
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Username</TableCell>
-                    <TableCell align="right">Score</TableCell>
-                    <TableCell align="right">Level</TableCell>
-                    <TableCell align="right">Correct</TableCell>
-                    <TableCell align="right">Wrong</TableCell>
-                    <TableCell align="right">Streak</TableCell>
+      <Grid item xs={5}>
+        {/* {userStats.length} */}
+        <div className={classes.center}>
+          <h3>User Stats</h3>
+        </div>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Username</TableCell>
+                <TableCell align="right">Score</TableCell>
+                <TableCell align="right">Level</TableCell>
+                <TableCell align="right">Correct</TableCell>
+                <TableCell align="right">Wrong</TableCell>
+                <TableCell align="right">Streak</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {userStats.length &&
+                userStats.map((row) => (
+                  <TableRow
+                    key={row.user}
+                    sx={{
+                      "&:last-child td, &:last-child th": { border: 0 },
+                    }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {user}
+                    </TableCell>
+                    <TableCell align="right">{row.score}</TableCell>
+                    <TableCell align="right">{row.level}</TableCell>
+                    <TableCell align="right">{row.correct}</TableCell>
+                    <TableCell align="right">{row.wrong}</TableCell>
+                    <TableCell align="right">{row.streak}</TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {userStats.length &&
-                    userStats.map((row) => (
-                      <TableRow
-                        key={row.user}
-                        sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
-                        }}
-                      >
-                        <TableCell component="th" scope="row">
-                          {user}
-                        </TableCell>
-                        <TableCell align="right">{row.score}</TableCell>
-                        <TableCell align="right">{row.level}</TableCell>
-                        <TableCell align="right">{row.correct}</TableCell>
-                        <TableCell align="right">{row.wrong}</TableCell>
-                        <TableCell align="right">{row.streak}</TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Grid>
-        </Grid>
-      </Box>
+                ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Grid>
     );
   };
   const handleClose = () => {
@@ -115,8 +122,8 @@ function Home() {
     history.push("/game");
   };
   useEffect(() => {
-    const url = "http://127.0.0.1:8000/api/leaderboard/";
-    axios
+    const url = "leaderboard/";
+    axiosInstance
       .get(url)
       .then(function (response) {
         console.log(response.data);
@@ -129,9 +136,9 @@ function Home() {
       });
   }, []);
   useEffect(() => {
-    const url = "http://127.0.0.1:8000/api/stats/";
+    const url = "stats/";
     console.log(userID);
-    axios
+    axiosInstance
       .get(url, {
         params: { user: userID },
       })
@@ -146,11 +153,12 @@ function Home() {
       });
   }, []);
   return (
-    <div>
+    <div className = "App">
       <Box>
-        <Grid container spacing={3}>
-          <Grid item xs={8}>
-            <h3>LeaderBoard</h3>
+        <Grid container spacing={6}>
+        {userStats.length && stats()}
+          <Grid item xs={6}>
+            <h3 className={classes.center} >LeaderBoard</h3>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
@@ -174,7 +182,9 @@ function Home() {
                           {row.username}
                         </TableCell>
                         <TableCell align="right">{row.level}</TableCell>
-                        <TableCell align="right">{Math.floor(row.score)}</TableCell>
+                        <TableCell align="right">
+                          {Math.floor(row.score)}
+                        </TableCell>
                         <TableCell align="right">{row.streak}</TableCell>
                       </TableRow>
                     ))}
@@ -182,9 +192,10 @@ function Home() {
               </Table>
             </TableContainer>
           </Grid>
+          
         </Grid>
       </Box>
-      {userStats.length && stats()}
+
       <div>
         <Button
           onClick={() => {

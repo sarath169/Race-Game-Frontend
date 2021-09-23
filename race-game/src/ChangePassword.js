@@ -16,56 +16,43 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-// function Copyright(props) {
-//   return (
-//     <Typography variant="body2" color="text.secondary" align="center" {...props}>
-//       {'Copyright © '}
-//       <Link color="inherit" href="https://material-ui.com/">
-//         Your Website
-//       </Link>{' '}
-//       {new Date().getFullYear()}
-//       {'.'}
-//     </Typography>
-//   );
-// }
-
-const theme = createTheme();
-
  // Axios Instance
  const axiosInstance = axios.create({
   baseURL : 'http://127.0.0.1:8000/auth/'
 })
 
-function Login() {
-  const { user, setUser, token, setToken, userID, setUserID } =
-    useContext(UserContext);
+const theme = createTheme();
+
+function ChangePassword() {
   const [username, setUserName] = useState("");
-  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newPassword2, setNewPassword2] = useState("");
   const history = useHistory();
 
   const userNameChangeHandler = (event) => {
     setUserName(event.target.value);
   };
-  const passwordChangeHandler = (event) => {
-    setPassword(event.target.value);
+  const newPasswordChangeHandler = (event) => {
+    setNewPassword(event.target.value);
   };
+  const newPassword2ChangeHandler = (event) => {
+    setNewPassword2(event.target.value);
+  };
+
   const submitHandler = async (event) => {
     event.preventDefault();
     try {
-      const API_URL = "login/";
+      const API_URL = "changepassword/";
       const formdata = new FormData();
       formdata.append("username", username);
-      formdata.append("password", password);
+      formdata.append("newpassword", newPassword);
+      formdata.append("newpassword2", newPassword2);
 
       axiosInstance
         .post(API_URL, formdata)
         .then(function (response) {
           console.log(response);
-          setToken(response.data.token);
-          setUser(username);
-          setUserID(response.data.id);
-          console.log("entered");
-          history.push("/home");
+          history.push("/");
         })
         .catch(function (error) {
           console.log(error);
@@ -74,7 +61,6 @@ function Login() {
       console.log(error);
     }
   };
-
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
@@ -91,7 +77,7 @@ function Login() {
             {/* <LockOutlinedIcon /> */}
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign in
+            Change Password
           </Typography>
           <Box
             component="form"
@@ -99,7 +85,7 @@ function Login() {
             noValidate
             sx={{ mt: 1 }}
           >
-            <TextField
+              <TextField
               margin="normal"
               required
               fullWidth
@@ -114,55 +100,36 @@ function Login() {
               margin="normal"
               required
               fullWidth
-              name="password"
-              label="Password"
+              id="newpassword"
+              label="New Password"
+              name="newpassword"
               type="password"
-              id="password"
+              autoComplete="fname"
+              autoFocus
+              onChange={newPasswordChangeHandler}
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="newpassword2"
+              label="Comfirm Password"
+              type="password"
+              id="newpassword2"
               autoComplete="current-password"
-              onChange={passwordChangeHandler}
+              onChange={newPassword2ChangeHandler}
             />
             {/* <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            /> */}
+            control={<Checkbox value="remember" color="primary" />}
+            label="Remember me"
+          /> */}
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <Button
-                
-                  onClick={() => {
-                    history.push("/changepassword");
-                  }}
-                >
-                  forgot password?
-                </Button>
-              </Grid>
-              <Button
-                onClick={() => {
-                  history.push("/signup");
-                }}
-              >
-                {"Don't have an account? Sign Up"}
-              </Button>
-            </Grid>
-            <br />
-            <Button
-              type="button"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              onClick={() => {
-                history.push("/home");
-              }}
-            >
-              {"Continue without logging in"}
+              Submit
             </Button>
           </Box>
         </Box>
@@ -171,4 +138,5 @@ function Login() {
     </ThemeProvider>
   );
 }
-export default Login;
+
+export default ChangePassword;

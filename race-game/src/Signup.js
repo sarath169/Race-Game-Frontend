@@ -36,6 +36,11 @@ function Copyright(props) {
 
 const theme = createTheme();
 
+ // Axios Instance
+ const axiosInstance = axios.create({
+  baseURL : 'http://127.0.0.1:8000/api/'
+})
+
 function Signup() {
   const { user, setUser, token, setToken } = useContext(UserContext);
   const history = useHistory()
@@ -59,14 +64,14 @@ function Signup() {
   const submitHandler = async (event) => {
     event.preventDefault();
     try {
-      const API_URL = "http://127.0.0.1:8000/auth/signup/";
+      const API_URL = "signup/";
       const formdata = new FormData();
       formdata.append("username", username);
       formdata.append("email", email);
       formdata.append("password", password);
       formdata.append("password2", password2);
 
-      axios
+      axiosInstance
         .post(API_URL, formdata)
         .then(function (response) {
           console.log(response);

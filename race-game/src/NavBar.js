@@ -10,6 +10,11 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 
+ // Axios Instance
+ const axiosInstance = axios.create({
+  baseURL : 'http://127.0.0.1:8000/auth/'
+})
+
 export default function NavBar() {
 
   const { user, token, userID } = useContext(UserContext);
@@ -22,14 +27,14 @@ export default function NavBar() {
     history.push('/')
   }
   const Logout = () =>{
-    const url = "http://127.0.0.1:8000/auth/logout/";
+    const url = "logout/";
     const formdata = new FormData();
-    formdata.append("token", token)
-    axios
+    formdata.append("user", user)
+    axiosInstance
       .post(url, formdata)
       .then(function (response) {
         console.log(response.data);
-
+        history.push('/')
         // setUsers(response.data.results);
       })
       .catch(function (error) {
@@ -47,7 +52,9 @@ export default function NavBar() {
             aria-label="menu"
             sx={{ mr: 2 }}
           >
-            <MenuIcon />
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            teletyping
+            </Typography>
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           <Button color="inherit" onClick = {Home}>Home</Button>

@@ -19,6 +19,13 @@ import TextField from "@mui/material/TextField";
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router";
 import { UserContext } from "./UserContext";
+import "./App.css";
+import { lightGreen, red } from "@mui/material/colors";
+
+ // Axios Instance
+ const axiosInstance = axios.create({
+  baseURL : 'http://127.0.0.1:8000/api/'
+})
 
 function Game() {
   const { user, token, userID } = useContext(UserContext);
@@ -28,7 +35,9 @@ function Game() {
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [wrong, setWrong] = useState(0);
-  const [correct, setCorrect] = useState(0)
+  const [correct, setCorrect] = useState(0);
+  const [stack, setStack] = useState(0);
+  const [index, setIndex] = useState(1);
   const [multiplier, setMultiplier] = useState(1);
   const [pointer, setPointer] = useState(1);
   const [wordTyped, setWordTyped] = useState("Input");
@@ -60,6 +69,12 @@ function Game() {
       border: "2px solid #000",
       boxShadow: theme.shadows[5],
       padding: theme.spacing(2, 4, 3),
+    },
+    red: {
+      backgroundColor: red,
+    },
+    green: {
+      backgroundColor: lightGreen,
     },
   }));
 
@@ -159,7 +174,7 @@ function Game() {
         </Typography>
         <Typography
           sx={{ fontSize: 30 }}
-          color="text.secondary"
+          color={displayWord == wordTyped ? classes.green : classes.red}
           gutterBottom
           textAlign="center"
         >
@@ -213,6 +228,17 @@ function Game() {
     } while (currentDate - date < milliseconds);
   }
 
+  async function populateStack() {
+    if (stack < 10) {
+      setTimeout(setStack(stack + 1), 3000);
+      console.log(stack);
+      // sleep(10000);
+      setIndex(index + 1);
+    } else {
+      endgame();
+    }
+  }
+
   function check() {
     if (pointer < 25) {
       if (wordTyped === displayWord) {
@@ -220,10 +246,11 @@ function Game() {
         setScore(score + multiplier * 1);
         setMultiplier(multiplier + 1);
         setPointer(pointer + 1);
-        setCorrect(correct+1)
+        setIndex(index + 1);
+        setCorrect(correct + 1);
       } else {
         setScore(score - 1);
-        setWrong(wrong+1)
+        setWrong(wrong + 1);
         setMultiplier(1);
       }
     } else {
@@ -245,13 +272,12 @@ function Game() {
     formdata.append("user", userID);
     formdata.append("score", score);
     formdata.append("level", level);
-    formdata.append("correct", correct );
+    formdata.append("correct", correct);
     formdata.append("wrong", wrong);
     formdata.append("streak", streak);
 
-    const url = "http://127.0.0.1:8000/api/save/";
-    axios
-      .post(url, formdata)
+    axiosInstance
+      .post('save/', formdata)
       .then(function (response) {
         console.log(response);
         history.push("/home");
@@ -307,9 +333,11 @@ function Game() {
   const inputChangeHandler = (event) => {
     setWordTyped(event.target.value);
   };
+
+  // getwords api
   useEffect(() => {
-    const url = "http://127.0.0.1:8000/api/getwords/";
-    axios
+    const url = "getwords/";
+    axiosInstance
       .get(url)
       .then(function (response) {
         console.log(response);
@@ -321,9 +349,14 @@ function Game() {
         console.log(error);
       });
   }, []);
+  // useEffect(() => {
+  //   await populateStack()
+  // }, [index])
+
+  // leaderBoard
   useEffect(() => {
-    const url = "http://127.0.0.1:8000/api/leaderboard/";
-    axios
+    const url = "leaderboard/";
+    axiosInstance
       .get(url)
       .then(function (response) {
         console.log(response);
@@ -334,14 +367,18 @@ function Game() {
         console.log(error);
       });
   }, []);
+
+  // Score
   useEffect(() => {
     setLevel(Math.ceil((10 * score) / 1275));
   }, [score]);
+
+  // multiplier
   useEffect(() => {
     if (multiplier > streak) setStreak(multiplier);
   }, [multiplier]);
   return (
-    <div>
+    <div className="App">
       <div className="">
         <br />
         <br />
@@ -386,7 +423,9 @@ function Game() {
                             {row.username}
                           </TableCell>
                           <TableCell align="right">{row.level}</TableCell>
-                          <TableCell align="right">{row.score}</TableCell>
+                          <TableCell align="right">
+                            {Math.floor(row.score)}
+                          </TableCell>
                           <TableCell align="right">{row.streak}</TableCell>
                         </TableRow>
                       ))}
@@ -424,6 +463,29 @@ function Game() {
             <Card variant="outlined">{inputWord}</Card>
           </Grid>
         </Grid>
+        <Grid container spacing={3}>
+          <Grid item xs={6}>
+            <Box
+              component="form"
+              onSubmit={submitHandler}
+              noValidate
+              sx={{ mt: 1 }}
+            >
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="input"
+                label="Input"
+                name="input"
+                autoComplete="fname"
+                autoFocus
+                value={wordTyped}
+                onChange={inputChangeHandler}
+              />
+            </Box>
+          </Grid>
+        </Grid>
       </Box>
       {/* <Button
         onClick={() => {
@@ -433,20 +495,6 @@ function Game() {
         Start
       </Button> */}
 
-      <Box component="form" onSubmit={submitHandler} noValidate sx={{ mt: 1 }}>
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          id="input"
-          label="Input"
-          name="input"
-          autoComplete="fname"
-          autoFocus
-          value={wordTyped}
-          onChange={inputChangeHandler}
-        />
-      </Box>
       <div>
         <Modal
           open={open}
@@ -463,23 +511,52 @@ function Game() {
                 <li> Correct : {correct}</li>
                 <li> Wrong : {wrong}</li>
               </ul>
-              <Button
-                onClick={() => {
-                  setOpen(false);
-                }}
-              >
-                Don't Save
-              </Button>
-              <Button
+              {user ? (
+                <>
+                  <Button
+                    onClick={() => {
+                      setOpen(false);
+                    }}
+                  >
+                    Don't Save
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      Save();
+                    }}
+                  >
+                    Save
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    onClick={() => {
+                      setOpen(false);
+                    }}
+                  >
+                    Exit
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setOpen(false);
+                      history.push("/signup");
+                    }}
+                  >
+                    Create an account to save
+                  </Button>
+                </>
+              )}
+            </div>
+          </>
+        </Modal>
+        {/* <Button
                 onClick={() => {
                   Save();
                 }}
               >
-                Save
-              </Button>
-            </div>
-          </>
-        </Modal>
+                Start
+              </Button> */}
       </div>
     </div>
   );

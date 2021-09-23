@@ -5,8 +5,10 @@ import Login from "./Login";
 import Signup from "./Signup";
 import Game from "./Game";
 import Home from "./Home";
+import ChangePassword from "./ChangePassword.js";
 import { UserProvider } from "./UserContext";
 import NavBar from "./NavBar";
+import "./App.css";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -14,27 +16,32 @@ function App() {
   const [userID, setUserID] = useState(null);
   const history = useHistory();
   const providerValue = useMemo(
-    () => ({ user, setUser, token, setToken, userID, setUserID, }),
+    () => ({ user, setUser, token, setToken, userID, setUserID }),
     [user, setUser, token, setToken, userID, setUserID]
   );
   return (
-    <BrowserRouter>
-      <UserProvider value={providerValue}>
-        <NavBar />
-        <Switch>
-          <Route exact path="/">
-            <Login />
-          </Route>
-          <Route exact path="/signup">
-            <Signup />
-          </Route>
-          <Route exact path="/home">
-            <Home />
-          </Route>
-          <Route exact path="/game">
-            <Game />
-          </Route>
-          {/* <Route exact path="/search">
+    <div>
+      <BrowserRouter>
+        <UserProvider value={providerValue}>
+          <NavBar />
+          <Switch>
+            <Route exact path="/">
+              <Login />
+            </Route>
+            <Route exact path="/signup">
+              <Signup />
+            </Route>
+            <Route exact path="/changepassword">
+              <ChangePassword />
+            </Route>
+            <Route exact path="/home">
+              <Home />
+            </Route>
+            <Route exact path="/game">
+              <Game />
+            </Route>
+
+            {/* <Route exact path="/search">
             <Input />
           </Route>
           <Route path="/favourites">
@@ -49,9 +56,10 @@ function App() {
           <Route path="/result">
             <Display />
           </Route> */}
-        </Switch>
-      </UserProvider>
-    </BrowserRouter>
+          </Switch>
+        </UserProvider>
+      </BrowserRouter>
+    </div>
   );
 }
 

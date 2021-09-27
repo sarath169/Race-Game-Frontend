@@ -7,31 +7,24 @@ import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
 import axios from "axios";
 import TextField from "@mui/material/TextField";
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router";
 import { UserContext } from "./UserContext";
-import "./App.css";
 import { lightGreen, red } from "@mui/material/colors";
 
- // Axios Instance
- const axiosInstance = axios.create({
-  baseURL : 'http://127.0.0.1:8000/api/'
-})
+import "./App.css";
+
+// Axios Instance
+const axiosInstance = axios.create({
+  baseURL: "http://127.0.0.1:8000/api/",
+});
 
 function Game() {
   const { user, token, userID } = useContext(UserContext);
   const history = useHistory();
   const [words, setWords] = useState([]);
-  const [leaderBoard, setLeaderBoard] = useState([]);
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [wrong, setWrong] = useState(0);
@@ -40,7 +33,7 @@ function Game() {
   const [index, setIndex] = useState(1);
   const [multiplier, setMultiplier] = useState(1);
   const [pointer, setPointer] = useState(1);
-  const [wordTyped, setWordTyped] = useState("Input");
+  const [wordTyped, setWordTyped] = useState("");
   const [displayWord, setDisplayWord] = useState();
   const [modalStyle] = useState(getModalStyle);
   const [streak, setStreak] = useState(multiplier);
@@ -249,7 +242,9 @@ function Game() {
         setIndex(index + 1);
         setCorrect(correct + 1);
       } else {
-        setScore(score - 1);
+        if (score) {
+          setScore(score - 1);
+        }
         setWrong(wrong + 1);
         setMultiplier(1);
       }
@@ -267,7 +262,7 @@ function Game() {
     setOpen(true);
   }
 
-  const Save = () => {
+  const save = () => {
     const formdata = new FormData();
     formdata.append("user", userID);
     formdata.append("score", score);
@@ -277,7 +272,7 @@ function Game() {
     formdata.append("streak", streak);
 
     axiosInstance
-      .post('save/', formdata)
+      .post("save/", formdata)
       .then(function (response) {
         console.log(response);
         history.push("/home");
@@ -286,6 +281,10 @@ function Game() {
       .catch(function (error) {
         console.log(error);
       });
+  };
+
+  const stop = () => {
+    setOpen(true);
   };
 
   function testWord() {
@@ -326,12 +325,12 @@ function Game() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    setWordTyped(null);
+    setWordTyped('');
     check();
   };
 
   const inputChangeHandler = (event) => {
-    setWordTyped(event.target.value);
+    setWordTyped(event.target.value.toLowerCase());
   };
 
   // getwords api
@@ -349,28 +348,10 @@ function Game() {
         console.log(error);
       });
   }, []);
-  // useEffect(() => {
-  //   await populateStack()
-  // }, [index])
-
-  // leaderBoard
-  useEffect(() => {
-    const url = "leaderboard/";
-    axiosInstance
-      .get(url)
-      .then(function (response) {
-        console.log(response);
-        setLeaderBoard(response.data);
-        // setUsers(response.data.results);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }, []);
 
   // Score
   useEffect(() => {
-    setLevel(Math.ceil((10 * score) / 1275));
+    setLevel(Math.ceil((10 * (score+1)) / 1275));
   }, [score]);
 
   // multiplier
@@ -393,58 +374,6 @@ function Game() {
             <Grid item xs={2}>
               <Card variant="outlined">{multiplierCard}</Card>
             </Grid>
-          </Grid>
-        </Box>
-      </div>
-      <div>
-        <Box>
-          <Grid container spacing={3}>
-            <Grid item xs={6}>
-              <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Username</TableCell>
-                      <TableCell align="right">Level</TableCell>
-                      <TableCell align="right">Score</TableCell>
-                      <TableCell align="right"></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {leaderBoard.length &&
-                      leaderBoard.map((row) => (
-                        <TableRow
-                          key={row.user}
-                          sx={{
-                            "&:last-child td, &:last-child th": { border: 0 },
-                          }}
-                        >
-                          <TableCell component="th" scope="row">
-                            {row.username}
-                          </TableCell>
-                          <TableCell align="right">{row.level}</TableCell>
-                          <TableCell align="right">
-                            {Math.floor(row.score)}
-                          </TableCell>
-                          <TableCell align="right">{row.streak}</TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Grid>
-            {/* <Box>
-          <Grid container spacing={3}>
-            <Grid item xs={6}>
-              <ul>
-                {words.length &&
-                  words.map((word) => (
-                    <li> {word}</li>
-                  ))}
-              </ul>
-            </Grid>
-          </Grid>
-        </Box> */}
           </Grid>
         </Box>
       </div>
@@ -485,6 +414,13 @@ function Game() {
               />
             </Box>
           </Grid>
+          <Button
+            onClick={() => {
+              stop();
+            }}
+          >
+            Stop
+          </Button>
         </Grid>
       </Box>
       {/* <Button
@@ -522,7 +458,7 @@ function Game() {
                   </Button>
                   <Button
                     onClick={() => {
-                      Save();
+                      save();
                     }}
                   >
                     Save

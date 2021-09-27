@@ -9,6 +9,7 @@ import ChangePassword from "./ChangePassword.js";
 import { UserProvider } from "./UserContext";
 import NavBar from "./NavBar";
 import "./App.css";
+import Leaderboard from "./Components/Leaderboard";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -40,22 +41,9 @@ function App() {
             <Route exact path="/game">
               <Game />
             </Route>
-
-            {/* <Route exact path="/search">
-            <Input />
-          </Route>
-          <Route path="/favourites">
-            <Favourites />
-          </Route>
-          <Route path="/addlocation">
-            <AddLocation />
-          </Route>
-          <Route path="/searchlocation">
-            <LocationSearch />
-          </Route>
-          <Route path="/result">
-            <Display />
-          </Route> */}
+            <Route exact path= "/leaderboard">
+              <Leaderboard/>
+            </Route>
           </Switch>
         </UserProvider>
       </BrowserRouter>

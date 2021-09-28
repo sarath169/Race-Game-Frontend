@@ -42,7 +42,7 @@ function Leaderboard() {
                     <TableCell>Username</TableCell>
                     <TableCell align="right">Level</TableCell>
                     <TableCell align="right">Score</TableCell>
-                    <TableCell align="right"></TableCell>
+                    <TableCell align="right">Streak</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
+import randomWords from "random-words";
 import Card from "@mui/material/Card";
 import { Modal } from "@material-ui/core";
 import Box from "@mui/material/Box";
-import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -12,32 +12,46 @@ import TextField from "@mui/material/TextField";
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router";
 import { UserContext } from "./UserContext";
-import { lightGreen, red } from "@mui/material/colors";
+import { green, lightGreen, red } from "@mui/material/colors";
 
 import "./App.css";
+import WordCheck from "./Components/WordCheck";
+import WordStack from "./Components/WordStack";
+import { Hidden } from "@mui/material";
 
 // Axios Instance
 const axiosInstance = axios.create({
   baseURL: "http://127.0.0.1:8000/api/",
 });
 
+const NUMB_OF_WORDS = 200;
+const SECONDS = 60;
+
 function Game() {
   const { user, token, userID } = useContext(UserContext);
   const history = useHistory();
+  const [playAgain, setPlayAgain] = useState(false);
+  const [readOnly, setReadOnly] = useState(true);
+  const [intervalID, setIntervalID] = useState(null);
   const [words, setWords] = useState([]);
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [wrong, setWrong] = useState(0);
   const [correct, setCorrect] = useState(0);
-  const [stack, setStack] = useState(0);
+  const [length, setLength] = useState(1);
+  const [stackWord, setStackWord] = useState("");
+  const [stack, setStack] = useState([]);
   const [index, setIndex] = useState(1);
   const [multiplier, setMultiplier] = useState(1);
-  const [pointer, setPointer] = useState(1);
+  const [pointer, setPointer] = useState(0);
   const [wordTyped, setWordTyped] = useState("");
-  const [displayWord, setDisplayWord] = useState();
+  const [displayWord, setDisplayWord] = useState("");
   const [modalStyle] = useState(getModalStyle);
   const [streak, setStreak] = useState(multiplier);
   const [open, setOpen] = useState(false);
+  const [keyPress, setKeyPress] = useState("");
+  const [started, setStarted] = useState(false);
+  const [finished, setFinished] = useState(false);
 
   const useStyles = makeStyles((theme) => ({
     root: {
@@ -69,6 +83,16 @@ function Game() {
     green: {
       backgroundColor: lightGreen,
     },
+    scrol: {
+      margin: "4px",
+      padding: "4px",
+      backgroundColor: green,
+      width: "500px",
+      height: "500px",
+      overflowX: "hidden",
+      overflowY: "scroll",
+      textAlign: "justify",
+    },
   }));
 
   const classes = useStyles();
@@ -86,6 +110,10 @@ function Game() {
       left: `${left}%`,
       transform: `translate(-${top}%, -${left}%)`,
     };
+  }
+
+  function generateWords() {
+    return new Array(NUMB_OF_WORDS).fill();
   }
 
   const scoreCard = (
@@ -213,32 +241,41 @@ function Game() {
       </CardContent>
     </React.Fragment>
   );
-  function sleep(milliseconds) {
-    const date = Date.now();
-    let currentDate = null;
-    do {
-      currentDate = Date.now();
-    } while (currentDate - date < milliseconds);
-  }
-
-  async function populateStack() {
-    if (stack < 10) {
-      setTimeout(setStack(stack + 1), 3000);
-      console.log(stack);
-      // sleep(10000);
-      setIndex(index + 1);
-    } else {
-      endgame();
+  const startgame = () => {
+    let id;
+    setReadOnly(false);
+    if (words.length > 0) {
+      id = setInterval(() => {
+        setStack((prevStack) => [...prevStack, words[0]]);
+        words.shift();
+        console.log(level, "level");
+      }, 5000 / level);
+      setIntervalID(id);
     }
+  };
+
+  function endgame() {
+    console.log("endgame");
+    clearInterval(intervalID);
+    stop();
   }
 
   function check() {
-    if (pointer < 25) {
+    if (stack.length < 10) {
       if (wordTyped === displayWord) {
-        setDisplayWord(words[pointer]);
+        if (wordTyped === stack[0]) {
+          stack.shift();
+        }
+        if (stack.length > 0) {
+          console.log("stack is not null");
+          setDisplayWord(stack[0]);
+        } else {
+          console.log("stack is null");
+          setDisplayWord(words[0]);
+          words.shift();
+        }
         setScore(score + multiplier * 1);
         setMultiplier(multiplier + 1);
-        setPointer(pointer + 1);
         setIndex(index + 1);
         setCorrect(correct + 1);
       } else {
@@ -258,10 +295,6 @@ function Game() {
     // history.push("/game");
   };
 
-  function endgame() {
-    setOpen(true);
-  }
-
   const save = () => {
     const formdata = new FormData();
     formdata.append("user", userID);
@@ -275,7 +308,7 @@ function Game() {
       .post("save/", formdata)
       .then(function (response) {
         console.log(response);
-        history.push("/home");
+        history.push("/leaderboard");
         // setUsers(response.data.results);
       })
       .catch(function (error) {
@@ -284,48 +317,13 @@ function Game() {
   };
 
   const stop = () => {
+    console.log("stop");
     setOpen(true);
   };
 
-  function testWord() {
-    var length = 0;
-    while (length < words.length) {
-      setDisplayWord(words[length]);
-      console.log(displayWord);
-      if (level == 1) {
-        sleep(12000);
-        length = length + 1;
-        console.log(words[length]);
-        console.log(length);
-        console.log(displayWord);
-        console.log(level);
-      } else if (level == 2) {
-        sleep(10000);
-        length = length + 1;
-        console.log(level);
-      } else if (level == 3) {
-        sleep(8000);
-        length = length + 1;
-        console.log(level);
-      } else if (level == 4) {
-        sleep(6000);
-        length = length + 1;
-        console.log(level);
-      } else if (level == 5) {
-        sleep(4000);
-        length = length + 1;
-        console.log(level);
-      } else if (level == 6) {
-        sleep(3000);
-        length = length + 1;
-        console.log(level);
-      }
-    }
-  }
-
   const submitHandler = async (event) => {
     event.preventDefault();
-    setWordTyped('');
+    setWordTyped("");
     check();
   };
 
@@ -333,34 +331,69 @@ function Game() {
     setWordTyped(event.target.value.toLowerCase());
   };
 
-  // getwords api
+  const downHandler = (event) => {
+    console.log("keydown");
+    setKeyPress(...keyPress, event.key);
+  };
+
+  // generate words
   useEffect(() => {
-    const url = "getwords/";
-    axiosInstance
-      .get(url)
-      .then(function (response) {
-        console.log(response);
-        setWords(response.data.words);
-        setDisplayWord(response.data.words[0]);
-        // setUsers(response.data.results);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }, []);
+    setWords(randomWords({ exactly: NUMB_OF_WORDS, minLength: 4 }));
+    clearInterval(intervalID);
+    setStack([]);
+  }, [playAgain]);
+
+  // set stack words as words[0]
+  useEffect(() => {
+    setStackWord(words[0]);
+  }, [words]);
+
+  useEffect(() => {
+    setDisplayWord(stackWord);
+  }, [stackWord]);
+
+  useEffect(() => {
+    console.log(stack);
+    if (stack.length > 10) {
+      console.log("endgame");
+      endgame();
+    }
+  }, [stack]);
+
+  //Level
+
+  useEffect(() => {
+    if (intervalID){
+    clearInterval(intervalID)
+    startgame()
+    }
+  },[level])
 
   // Score
   useEffect(() => {
-    setLevel(Math.ceil((10 * (score+1)) / 1275));
+    setLevel(Math.ceil((10 * (score + 1)) / 1100));
   }, [score]);
 
   // multiplier
   useEffect(() => {
     if (multiplier > streak) setStreak(multiplier);
   }, [multiplier]);
+
   return (
     <div className="App">
       <div className="">
+        {/* <div className={classes.scrol}>
+          <ul>
+            {words.length &&
+              words.map((word, index) => {
+                return (
+                  <li>
+                    <span key={index}>{word}</span>
+                  </li>
+                );
+              })}
+          </ul>
+        </div> */}
         <br />
         <br />
         <Box>
@@ -377,21 +410,11 @@ function Game() {
           </Grid>
         </Box>
       </div>
-      <Box>
-        <Grid container spacing={3}>
-          <Grid item xs={6}>
-            <Card variant="outlined">{display}</Card>
-          </Grid>
-        </Grid>
-      </Box>
       <br />
       <br />
+      <WordStack stack={stack} />
+      {displayWord && <WordCheck word={displayWord} userInput={wordTyped} />}
       <Box>
-        <Grid container spacing={3}>
-          <Grid item xs={6}>
-            <Card variant="outlined">{inputWord}</Card>
-          </Grid>
-        </Grid>
         <Grid container spacing={3}>
           <Grid item xs={6}>
             <Box
@@ -409,27 +432,17 @@ function Game() {
                 name="input"
                 autoComplete="fname"
                 autoFocus
+                InputProps={{
+                  readOnly: readOnly,
+                }}
                 value={wordTyped}
+                // onKeyDown={inputChangeHandler}
                 onChange={inputChangeHandler}
               />
             </Box>
           </Grid>
-          <Button
-            onClick={() => {
-              stop();
-            }}
-          >
-            Stop
-          </Button>
         </Grid>
       </Box>
-      {/* <Button
-        onClick={() => {
-          testWord();
-        }}
-      >
-        Start
-      </Button> */}
 
       <div>
         <Modal
@@ -469,9 +482,13 @@ function Game() {
                   <Button
                     onClick={() => {
                       setOpen(false);
+                      setMultiplier(1);
+                      setScore(0);
+                      setLevel(1);
+                      setPlayAgain(true);
                     }}
                   >
-                    Exit
+                    Play Again
                   </Button>
                   <Button
                     onClick={() => {
@@ -486,13 +503,20 @@ function Game() {
             </div>
           </>
         </Modal>
-        {/* <Button
-                onClick={() => {
-                  Save();
-                }}
-              >
-                Start
-              </Button> */}
+        <Button
+          onClick={() => {
+            startgame();
+          }}
+        >
+          Start
+        </Button>
+        <Button
+          onClick={() => {
+            stop();
+          }}
+        >
+          Stop
+        </Button>
       </div>
     </div>
   );

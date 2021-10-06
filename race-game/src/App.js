@@ -4,12 +4,15 @@ import { BrowserRouter, Route, Switch, useHistory } from "react-router-dom";
 import Login from "./Login";
 import Signup from "./Signup";
 import Game from "./Game";
-import Home from "./Home";
-import ChangePassword from "./ChangePassword.js";
+import UserStats from "./UserStats";
+import ForgotPassword from "./ForgotPassword";
 import { UserProvider } from "./UserContext";
 import NavBar from "./NavBar";
 import "./App.css";
 import Leaderboard from "./Components/Leaderboard";
+import SendOtp from "./SendOtp";
+import ValidateOtp from "./ValidateOtp";
+import KeyboardPress from "./KeyboardPress";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -21,30 +24,41 @@ function App() {
     [user, setUser, token, setToken, userID, setUserID]
   );
   return (
-    <div>
+    <div >
       <BrowserRouter>
         <UserProvider value={providerValue}>
           <NavBar />
-          <Switch>
+          <div className = "">
+          <Switch >
             <Route exact path="/">
               <Login />
-            </Route>
-            <Route exact path="/signup">
-              <Signup />
-            </Route>
-            <Route exact path="/changepassword">
-              <ChangePassword />
-            </Route>
-            <Route exact path="/home">
-              <Home />
             </Route>
             <Route exact path="/game">
               <Game />
             </Route>
-            <Route exact path= "/leaderboard">
-              <Leaderboard/>
+            <Route exact path="/signup">
+              <Signup />
+            </Route>
+            <Route exact path="/sendotp">
+              <SendOtp />
+            </Route>
+            <Route exact path="/validateotp">
+              <ValidateOtp />
+            </Route>
+            <Route exact path="/forgotpassword">
+              <ForgotPassword />
+            </Route>
+            <Route exact path="/stats">
+              <UserStats />
+            </Route>
+            <Route exact path="/leaderboard">
+              <Leaderboard />
+            </Route>
+            <Route exact path="/keyboard">
+              <KeyboardPress />
             </Route>
           </Switch>
+          </div>
         </UserProvider>
       </BrowserRouter>
     </div>

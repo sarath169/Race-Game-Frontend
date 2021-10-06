@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import randomWords from "random-words";
 import Keyboard from "react-virtual-keyboard";
 import Card from "@mui/material/Card";
@@ -29,7 +29,7 @@ const axiosInstance = axios.create({
 const NUMB_OF_WORDS = 200;
 const SECONDS = 60;
 
-function Game() {
+function Multiplayer() {
   const { user, token, userID } = useContext(UserContext);
   console.log(user, userID);
   const history = useHistory();
@@ -40,7 +40,6 @@ function Game() {
   const [finished, setFinished] = useState(false);
   const [readOnly, setReadOnly] = useState(true);
   const [intervalID, setIntervalID] = useState(null);
-  const [keyPressed, setKeyPressed] = useState("");
   const [input, setInput] = useState();
   const [words, setWords] = useState([]);
   const [score, setScore] = useState(0);
@@ -199,28 +198,6 @@ function Game() {
           textAlign="center"
         >
           {displayWord}
-        </Typography>
-      </CardContent>
-    </React.Fragment>
-  );
-  const keyPressedCard = (
-    <React.Fragment>
-      <CardContent>
-        <Typography
-          sx={{ fontSize: 20 }}
-          color="text.secondary"
-          gutterBottom
-          textAlign="center"
-        >
-          KeyPressed
-        </Typography>
-        <Typography
-          sx={{ fontSize: 30 }}
-          color="text.secondary"
-          gutterBottom
-          textAlign="center"
-        >
-          {keyPressed}
         </Typography>
       </CardContent>
     </React.Fragment>
@@ -425,11 +402,6 @@ function Game() {
               noValidate
               sx={{ mt: 1 }}
             >
-              {/* <Grid xs={6}>
-                <Grid item xs={3}>
-                  <Card variant="outlined">{keyPressedCard}</Card>
-                </Grid>
-              </Grid> */}
               <TextField
                 margin="normal"
                 required
@@ -560,7 +532,7 @@ function Game() {
           </>
         </Modal>
         <Button
-          variant="outlined"
+        variant = "outlined"
           disabled={started}
           onClick={() => {
             startgame();
@@ -570,8 +542,8 @@ function Game() {
         >
           Start
         </Button>
-        <br />
-        <br />
+        <br/>
+        <br/>
       </div>
       {/* <Keyboard
         value={input}
@@ -602,4 +574,4 @@ function Game() {
   );
 }
 
-export default Game;
+export default Multiplayer;

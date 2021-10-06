@@ -9,6 +9,8 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+import { makeStyles } from "@material-ui/core/styles";
+
 
  // Axios Instance
  const axiosInstance = axios.create({
@@ -18,13 +20,67 @@ import MenuIcon from '@mui/icons-material/Menu';
 export default function NavBar() {
 
   const { user, token, userID, setToken } = useContext(UserContext);
+
+  const useStyles = makeStyles((theme) => ({
+    root: {
+      display: "inline-grid",
+    },
+    media: {
+      height: 200,
+    },
+    title: {
+      height: 80,
+    },
+    topPadding: {
+      padding: "10px",
+    },
+    leftPadding: {
+      leftPadding: "20px",
+    },
+    paper: {
+      position: "absolute",
+      width: 400,
+      backgroundColor: theme.palette.background.paper,
+      border: "2px solid #000",
+      boxShadow: theme.shadows[5],
+      padding: theme.spacing(2, 4, 3),
+    },
+    red: {
+      backgroundColor: "red",
+    },
+    green: {
+      backgroundColor: "lightGreen",
+    },
+    blue : {
+      backgroundColor: "#4FC3F7",
+    },
+    scrol: {
+      margin: "4px",
+      padding: "4px",
+      backgroundColor: "green",
+      width: "500px",
+      height: "500px",
+      overflowX: "hidden",
+      overflowY: "scroll",
+      textAlign: "justify",
+    },
+  }));
+
+  const classes = useStyles();
+
   
   const history = useHistory()
   const Home = () => {
-    history.push('/home')
+    history.push('/game')
+  }
+  const Signup = () => {
+    history.push('/signup')
   }
   const Login = () =>{
     history.push('/')
+  }
+  const Stats = () =>{
+    history.push('/stats')
   }
   const Logout = () =>{
     const url = "logout/";
@@ -43,8 +99,8 @@ export default function NavBar() {
       });
   }
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+    <Box sx={{ flexGrow: 1 }} >
+      <AppBar position="static" className = {classes.blue}>
         <Toolbar>
           <IconButton
             size="large"
@@ -59,6 +115,8 @@ export default function NavBar() {
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           <Button color="inherit" onClick = {Home}>Home</Button>
+          <Button color="inherit" onClick = {Stats}>Stats</Button>
+          <Button color="inherit" onClick = {Signup}>Signup</Button>
           { token ? (
             
             <Button color="inherit" onClick = {Logout}>Logout</Button>

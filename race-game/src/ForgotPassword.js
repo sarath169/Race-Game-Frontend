@@ -23,10 +23,10 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 const theme = createTheme();
 
-function ChangePassword() {
+function ForgotPassword() {
   const [username, setUserName] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [newPassword2, setNewPassword2] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
   const history = useHistory();
 
   const userNameChangeHandler = (event) => {
@@ -35,18 +35,18 @@ function ChangePassword() {
   const newPasswordChangeHandler = (event) => {
     setNewPassword(event.target.value);
   };
-  const newPassword2ChangeHandler = (event) => {
-    setNewPassword2(event.target.value);
+  const repeatPasswordChangeHandler = (event) => {
+    setRepeatPassword(event.target.value);
   };
 
   const submitHandler = async (event) => {
     event.preventDefault();
     try {
-      const API_URL = "changepassword/";
+      const API_URL = "forgotpassword/";
       const formdata = new FormData();
       formdata.append("username", username);
       formdata.append("newpassword", newPassword);
-      formdata.append("newpassword2", newPassword2);
+      formdata.append("repeatpassword", repeatPassword);
 
       axiosInstance
         .post(API_URL, formdata)
@@ -112,17 +112,13 @@ function ChangePassword() {
               margin="normal"
               required
               fullWidth
-              name="newpassword2"
+              name="repeatPassword"
               label="Comfirm Password"
               type="password"
-              id="newpassword2"
+              id="repeatPassword"
               autoComplete="current-password"
-              onChange={newPassword2ChangeHandler}
+              onChange={repeatPasswordChangeHandler}
             />
-            {/* <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          /> */}
             <Button
               type="submit"
               fullWidth
@@ -139,4 +135,4 @@ function ChangePassword() {
   );
 }
 
-export default ChangePassword;
+export default ForgotPassword;

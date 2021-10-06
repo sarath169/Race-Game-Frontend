@@ -11,6 +11,8 @@ function WordCheck(props) {
   const word = props.word.split("");
   const userInput = props.userInput.split("");
 
+  console.log(userInput, "wordcheck")
+
   const useStyles = makeStyles((theme) => ({
     root: {
       display: "inline-grid",
@@ -42,7 +44,7 @@ function WordCheck(props) {
   return (
     <Box>
       <Grid container spacing={3}>
-        <Grid item xs={6}>
+        <Grid item xs={8}>
           <Card variant="outlined">
             <React.Fragment>
               <CardContent>
@@ -64,7 +66,7 @@ function WordCheck(props) {
                       let color;
                       if (index < props.userInput.length) {
                         color =
-                          symbol === userInput[index] ? "#00FF00" : "#FF0000";
+                          symbol === userInput[index]? "#00FF00" : "#FF0000";
                       }
                       return (
                         <span key={index} style={{ backgroundColor: color }}>

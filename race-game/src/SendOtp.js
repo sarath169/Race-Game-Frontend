@@ -15,57 +15,39 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { ButtonBase } from "@mui/material";
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+// Axios Instance
+const axiosInstance = axios.create({
+  baseURL: "http://127.0.0.1:8000/auth/",
+});
 
 const theme = createTheme();
 
- // Axios Instance
- const axiosInstance = axios.create({
-  baseURL : 'http://127.0.0.1:8000/auth/'
-})
-
-function Login() {
-  const { user, setUser, token, setToken, userID, setUserID } =
-    useContext(UserContext);
+function SendOtp() {
   const [username, setUserName] = useState("");
-  const [password, setPassword] = useState("");
+  const [sentOtp, setSentOtp] = useState(false);
   const history = useHistory();
 
   const userNameChangeHandler = (event) => {
     setUserName(event.target.value);
   };
-  const passwordChangeHandler = (event) => {
-    setPassword(event.target.value);
-  };
+
   const submitHandler = async (event) => {
     event.preventDefault();
     try {
-      const API_URL = "login/";
+      const API_URL = "sendotp/";
       const formdata = new FormData();
       formdata.append("username", username);
-      formdata.append("password", password);
 
       axiosInstance
         .post(API_URL, formdata)
         .then(function (response) {
           console.log(response);
-          setToken(response.data.token);
-          setUser(username);
-          setUserID(response.data.id);
-          console.log("entered");
-          history.push("/game");
+          history.push({
+            pathname: "/validateotp",
+            state : {username : username}
+          });
         })
         .catch(function (error) {
           console.log(error);
@@ -74,11 +56,9 @@ function Login() {
       console.log(error);
     }
   };
-
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
-        <br/>
         <CssBaseline />
         <Box
           sx={{
@@ -92,7 +72,7 @@ function Login() {
             {/* <LockOutlinedIcon /> */}
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign in
+            Find Account
           </Typography>
           <Box
             component="form"
@@ -111,63 +91,20 @@ function Login() {
               autoFocus
               onChange={userNameChangeHandler}
             />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              onChange={passwordChangeHandler}
-            />
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <Button
-                
-                  onClick={() => {
-                    history.push("/sendotp");
-                  }}
-                >
-                  forgot password?
-                </Button>
-              </Grid>
-              <Button
-                onClick={() => {
-                  history.push("/signup");
-                }}
-              >
-                {"Don't have an account? Sign Up"}
-              </Button>
-            </Grid>
-            <br />
-            <Button
-              type="button"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              onClick={() => {
-                history.push("/");
-              }}
-            >
-              {"Continue without logging in"}
+              Recieve OTP
             </Button>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
-        <br/>
-        <br/>
+        {/* <Copyright sx={{ mt: 8, mb: 4 }} /> */}
       </Container>
     </ThemeProvider>
   );
 }
-export default Login;
+
+export default SendOtp;

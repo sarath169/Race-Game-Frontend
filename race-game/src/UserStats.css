@@ -1,0 +1,12 @@
+.Stats {
+    /* text-align: center; */
+    /* margin-left: 20px; */
+    background-color: aliceblue;
+    text-align: center;
+    height:max-content;
+    padding-left: 40px;
+    padding-right: 20px;
+    margin-left: 250px;
+    margin-right: 250px;
+    margin-top: 40px;
+  }
